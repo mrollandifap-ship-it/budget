@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="BUDGET_ELUS_V7_3_NOYAU17"
+  version="1.0"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="ORG_BUDGET">
+    <organization identifier="ORG_BUDGET">
+      <title>Comprendre et piloter le budget — Élus du Congrès</title>
+      <item identifier="ITEM_BUDGET" identifierref="RES_BUDGET" isvisible="true">
+        <title>Comprendre et piloter le budget</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="RES_BUDGET" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="app.js"/>
+      <file href="media/BUD-IMG-HERO-DOSSIER-J12.jpg"/>
+      <file href="media/BUD-IMG-M1-REPERES.jpg"/>
+      <file href="media/BUD-IMG-M2-DOSSIER.jpg"/>
+      <file href="media/BUD-IMG-M3-EQUILIBRES.jpg"/>
+      <file href="media/BUD-IMG-M4-INDICATEURS.jpg"/>
+      <file href="media/BUD-IMG-M5-COMMISSION.jpg"/>
+      <file href="media/BUD-IMG-CONCLUSION-CARNET.jpg"/>
+    </resource>
+  </resources>
+</manifest>

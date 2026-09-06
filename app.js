@@ -33,10 +33,10 @@ function compactModule(){
 }
 function restoreModule(c){if(!c||c.v!==3)return;Object.assign(state,{badges:c.b||state.badges,repSeen:c.rs||state.repSeen,actorsSeen:c.as||state.actorsSeen,cyclePlaced:c.cp||state.cyclePlaced,plan:c.pl||state.plan,docNeedIndex:c.dni??state.docNeedIndex,docNeedDone:c.dnd||state.docNeedDone,evolIndex:c.evi??state.evolIndex,evolDone:c.evd||state.evolDone,dossierPiece:c.dsp||state.dossierPiece,dossierSelected:c.dss||state.dossierSelected,dossierDone:c.dsd||state.dossierDone,dossierTry:c.dst||state.dossierTry,sections:c.se||state.sections,calcStep:c.ci??state.calcStep,calcShown:c.cs||state.calcShown,constats:c.ct||state.constats,reflexDone:c.rf??state.reflexDone,flips:c.fl||state.flips,hypotheses:c.hy||state.hypotheses,scenarios:c.sc||state.scenarios,simFinance:c.sf||state.simFinance,simRevenue:c.sr??state.simRevenue,simControl:c.sx??state.simControl,vigilances:c.vi||state.vigilances,priorities:c.pa||state.priorities,questions:c.qu||state.questions,exchangeStep:c.ex??state.exchangeStep,precision:c.ep??state.precision,instruction:c.ei??state.instruction,exchangeChoices:c.ec||state.exchangeChoices,exchangeNotes:c.en||state.exchangeNotes,exchangeDone:c.ed??state.exchangeDone});}
 function save(){GABARIT.donnee('budget',compactModule());updateBadges();}
-function complete(id){GABARIT.terminer(id);updateBadges();}
+function complete(id){GABARIT.terminer(id);updateBadges();if(typeof updateMacroMenuState==='function')updateMacroMenuState();}
 function isComplete(id){return !!((GABARIT.etat.terminees||{})[id]);}
 function seqIndex(id){return SEQ.indexOf(id)}
-function go(id,opts={}){if(!$(id))return;state.current=id;if(SEQ.includes(id))state.lastMain=id;GABARIT.aller(id);hydrateScreen(id);save();}
+function go(id,opts={}){if(!$(id))return;state.current=id;if(SEQ.includes(id))state.lastMain=id;GABARIT.aller(id);hydrateScreen(id);save();if(typeof updateMacroMenuState==='function')updateMacroMenuState();}
 function nextOf(id){const i=seqIndex(id);return i>=0&&i<SEQ.length-1?SEQ[i+1]:null}
 function prevOf(id){const i=seqIndex(id);return i>0?SEQ[i-1]:null}
 function goNext(id=state.current){const n=nextOf(id);if(n)go(n)}
@@ -254,7 +254,61 @@ function setupSequentialPosition(phase){
  if(phase==='pre'&&$('bud-pre-go'))$('bud-pre-go').onclick=()=>{complete('g-pre');go('m1-intro')};
  if(phase==='post'&&$('bud-post-go'))$('bud-post-go').onclick=()=>{complete('g-post');go('g-fin')};
 }
-function patchNucleusMenu(){['g-eval','g-satisf','bud-reperes','bud-carnet','bud-lexique'].forEach(id=>{const li=document.querySelector(`#g-menu-liste li[data-page="${id}"]`);if(li)li.remove()});}
+const MACRO_NAV=[
+ {id:'g-contrat',kicker:'Accueil',label:'Bienvenue',pages:['g-contrat']},
+ {id:'g-pre',kicker:'Positionnement',label:'Positionnement initial',pages:['g-pre']},
+ {id:'m1-intro',kicker:'Mission 1',label:'Maîtriser les repères',pages:['m1-intro','bud-m1-reperes','bud-m1-acteurs','bud-m1-regle','bud-m1-cycle','bud-m1-plan','m1-close']},
+ {id:'m2-intro',kicker:'Mission 2',label:'Explorer le dossier',pages:['m2-intro','bud-m2-documents','bud-m2-logiques','bud-m2-evolution','bud-dossier','m2-close']},
+ {id:'m3-intro',kicker:'Mission 3',label:'Lire les équilibres',pages:['m3-intro','bud-m3-sections','bud-m3-calcul','bud-m3-interpreter','bud-m3-constats','bud-m3-reflexe','m3-close']},
+ {id:'m4-intro',kicker:'Mission 4',label:'Interpréter les indicateurs',pages:['m4-intro','bud-m4-indicateurs','bud-m4-trajectoire','bud-m4-simulateur','bud-m4-vigilances','m4-close']},
+ {id:'m5-intro',kicker:'Mission 5',label:'Préparer la commission',pages:['m5-intro','bud-m5-priorites','bud-m5-interlocuteur','bud-m5-question','bud-m5-commission','bud-m5-note','m5-close']},
+ {id:'g-post',kicker:'Positionnement',label:'Positionnement final',pages:['g-post']},
+ {id:'g-fin',kicker:'Clôture',label:'Pour conclure',pages:['g-fin','bud-ressources','bud-credits']}
+];
+let macroMenuObserver=null;
+function macroForPage(page){
+ let found=MACRO_NAV.find(x=>x.pages.includes(page));
+ if(!found&&['bud-reperes','bud-carnet','bud-lexique'].includes(page)){
+   const ref=state.returnTo||state.lastMain||'g-contrat';found=MACRO_NAV.find(x=>x.pages.includes(ref));
+ }
+ return found||null;
+}
+function macroDone(item){
+ if(item.id==='g-contrat')return isComplete('g-contrat');
+ if(item.id==='g-pre')return isComplete('g-pre');
+ const m=navMission(item.id);if(m)return !!state.badges[m-1];
+ if(item.id==='g-post')return isComplete('g-post');
+ if(item.id==='g-fin')return isComplete('g-fin');
+ return false;
+}
+function updateMacroMenuState(){
+ const list=$('g-menu-liste');if(!list)return;
+ const current=(document.querySelector('.panel.actif')||{}).id||GABARIT.etat.page||state.current;
+ const active=macroForPage(current);
+ qa('li[data-macro-id]',list).forEach(li=>{
+   const item=MACRO_NAV.find(x=>x.id===li.dataset.macroId),a=li.querySelector('a'),st=li.querySelector('.g-menu-statut');
+   li.className='';a.removeAttribute('aria-current');a.removeAttribute('aria-disabled');
+   if(active&&item.id===active.id){li.classList.add('est-actif');a.setAttribute('aria-current','page');st.textContent='→'}
+   else if(macroDone(item)){li.classList.add('est-termine');st.textContent='✓'}
+   else{li.classList.add('est-a-venir');st.textContent=''}
+   const allowed=canAccessNav(item.id);
+   if(!allowed){a.setAttribute('aria-disabled','true');a.style.opacity='.62';a.style.cursor='default'}else{a.style.opacity='';a.style.cursor='pointer'}
+  });
+}
+function patchNucleusMenu(){
+ const list=$('g-menu-liste');if(!list)return;list.innerHTML='';
+ MACRO_NAV.forEach(item=>{
+   const li=document.createElement('li');li.dataset.macroId=item.id;li.dataset.page=item.id;
+   const a=document.createElement('a');a.href='#';a.setAttribute('role','link');
+   const txt=document.createElement('span'),k=document.createElement('span'),lab=document.createElement('span'),st=document.createElement('span');
+   k.className='g-menu-kicker';k.textContent=item.kicker;lab.className='g-menu-libelle';lab.textContent=item.label;st.className='g-menu-statut';st.setAttribute('aria-hidden','true');
+   txt.appendChild(k);txt.appendChild(lab);a.appendChild(txt);a.appendChild(st);li.appendChild(a);list.appendChild(li);
+   a.addEventListener('click',e=>{e.preventDefault();if(canAccessNav(item.id))go(item.id)});
+   a.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&canAccessNav(item.id)){e.preventDefault();go(item.id)}});
+ });
+ updateMacroMenuState();
+ const app=$('g-app');if(app){macroMenuObserver=new MutationObserver(()=>updateMacroMenuState());macroMenuObserver.observe(app,{subtree:true,attributes:true,attributeFilter:['class']})}
+}
 function patchBottomNavigation(){
  const next=$('g-btn-suiv'),prev=$('g-btn-prec');if(!next||!prev)return;
  next.addEventListener('click',e=>{const p=GABARIT.etat.page;if(p==='m5-close'){e.stopImmediatePropagation();e.preventDefault();go('g-post')}else if(p==='g-post'){e.stopImmediatePropagation();e.preventDefault();if(Object.keys(GABARIT.etat.post||{}).length>=(D.COMP||[]).length){complete('g-post');go('g-fin')}}},true);
@@ -273,7 +327,7 @@ function init(){
  state.current=GABARIT.etat.page||'g-contrat';state.lastMain=SEQ.includes(state.current)?state.current:'g-contrat';
  ensureOrders();wire();renderCarnet();renderScenarios();initPlan();initSections();initConstats();initVigilances();initPriorities();initQuestionBuilder();initFlips();initHypotheses();renderCalc();initSimControl();initExchange();
  setupSequentialPosition('pre');setupSequentialPosition('post');patchNucleusMenu();patchBottomNavigation();
- hydrateScreen(state.current);
+ hydrateScreen(state.current);updateMacroMenuState();
  const budget=GABARIT.verifierBudgetStockage();if(!budget.ok)console.error('[BUDGET] suspend_data dépasse la limite projet',budget);
 }
 
