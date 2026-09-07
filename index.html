@@ -591,7 +591,7 @@ body{overflow-x:hidden}
 .counter{font-size:12px;color:var(--texte2);font-weight:800}
 .two-choice{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .doc-shell{display:grid;grid-template-columns:220px 1fr;gap:18px}.doc-tabs{display:grid;gap:8px}.doc-tab{border:1px solid var(--ligne);background:#fff;border-radius:12px;padding:12px;text-align:left;cursor:pointer}.doc-tab.active{border-color:var(--bleu);background:#F4F7F9;box-shadow:inset 4px 0 0 var(--bleu)}.doc-tab.done{border-color:#B8DCC6}.doc-view{border:1px solid var(--ligne);border-radius:16px;padding:20px;background:#fff}.money-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.money{background:var(--page);border:1px solid var(--ligne);padding:12px;border-radius:12px}.money b{display:block;font-size:21px;color:var(--bleu)}
-.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:10px;margin:20px 0}.flow .block{padding:18px;border:1px solid var(--ligne);border-radius:14px;background:#fff;text-align:center}.flow .arrow{font-size:30px;color:var(--or);font-weight:900}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr) 42px minmax(0,1fr);align-items:stretch;gap:10px;margin:20px 0}.flow .block{padding:18px;border:1px solid var(--ligne);border-radius:14px;background:#fff;text-align:center;min-width:0;display:flex;flex-direction:column;justify-content:center;min-height:190px}.flow .arrow{font-size:30px;color:var(--or);font-weight:900;display:grid;place-items:center}
 .calc-data{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.datum{padding:14px;border-radius:12px;background:#F4F7F9;border:1px solid var(--ligne)}.datum.active{outline:3px solid rgba(248,187,0,.4);background:var(--ivoire)}.datum b{font-size:24px;color:var(--bleu);display:block}
 .calc-stage{padding:18px;border-radius:14px;border:1px solid var(--ligne);background:#fff;margin-top:14px}.formula{font-family:Consolas,monospace;font-size:18px;background:#F5F7F8;padding:12px;border-radius:9px}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{border:1px solid var(--ligne);border-radius:14px;padding:15px;background:#fff}.kpi b{display:block;font-size:26px;color:var(--bleu)}.kpi small{color:var(--texte2)}
@@ -682,6 +682,14 @@ body{overflow-x:hidden}
 .doc-divider{display:flex;align-items:center;gap:12px;padding:0 20px;color:var(--bleu-nuit);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
 .doc-divider:before,.doc-divider:after{content:"";height:1px;background:var(--ligne);flex:1}.doc-divider span{padding:10px 0}
 .choice.wrong:not(.selected){border-color:var(--erreur);background:var(--erreur-fond);box-shadow:none}
+/* V7.8 — choix binaires : la sélection doit être visible immédiatement, avant même de lire le feedback. */
+.section-row .section-pick{min-width:150px;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease}
+.section-row .section-pick.selected{background:var(--bleu);border-color:var(--bleu);color:#fff;box-shadow:inset 0 0 0 2px var(--bleu)}
+.section-row .section-pick.selected.correct{background:var(--succes);border-color:var(--succes);color:#fff;box-shadow:inset 0 0 0 2px var(--succes)}
+.section-row .section-pick.selected.wrong{background:var(--erreurFond);border:2px solid var(--erreur);color:#7C302B;box-shadow:inset 4px 0 0 var(--erreur)}
+.section-row[data-chosen] {border-color:#A9BAC4;background:#F8FAFB}
+.section-row[data-chosen] > b::after{content:" · choix enregistré";font-size:12px;font-weight:700;color:var(--texte2)}
+@media(max-width:620px){.section-row .cta-row{display:grid;grid-template-columns:1fr 1fr}.section-row .section-pick{min-width:0;width:100%}}
 @media(max-width:900px){.doc-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.doc-tabs{grid-template-columns:1fr}.g-carnet-intro{grid-template-columns:1fr}.g-carnet-intro-icon{width:40px;height:40px}}
 </style>
@@ -900,7 +908,7 @@ body{overflow-x:hidden}
 </div>
 <div class="cycle-build" id="cycle-build">
 <div class="guidance"><div aria-hidden="true">✋</div><div><strong>Phase 2 — Reconstituer.</strong> Cliquez les six étapes dans leur ordre logique. Une erreur vous indique où reprendre.</div></div>
-<div class="card soft"><div class="counter" id="cycle-build-counter">0/6 étapes placées</div><div class="tags" id="cycle-bank" style="margin-top:12px"></div></div>
+<div class="card soft"><div class="counter" id="cycle-build-counter">0/6 étapes placées</div><div id="cycle-placed" style="margin-top:12px"><p class="muted" style="margin:0 0 8px"><strong>Votre cycle :</strong> aucune étape placée pour le moment.</p></div><div class="tags" id="cycle-bank" style="margin-top:12px"></div></div>
 <div class="feedback" id="cycle-feedback"></div>
 <div class="cta-row"><button class="btn secondary" id="cycle-reset">Recommencer</button><button class="btn primary" disabled="" id="cycle-next">Continuer</button></div>
 </div>
@@ -1102,12 +1110,12 @@ body{overflow-x:hidden}
 <div class="arrow">→</div>
 <div class="block"><div class="icon">I</div><h4>Investissement</h4><p>Dépenses d’équipement et ressources qui les financent.</p></div>
 </div>
-<div class="guidance"><div aria-hidden="true">↔</div><div><strong>À vous de relier.</strong> Classez les quatre éléments dans la section qui leur correspond.</div></div>
+<div class="guidance"><div aria-hidden="true">✓</div><div><strong>À vous de classer.</strong> Pour chacun des quatre éléments, choisissez la section du budget à laquelle il appartient : <strong>Fonctionnement</strong> ou <strong>Investissement</strong>.</div></div>
 <div class="resource-list" id="section-items">
-<div class="resource section-row" data-correct="F" data-section-item="salaires"><b>Dépenses de personnel</b><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
-<div class="resource section-row" data-correct="I" data-section-item="equipement"><b>Dépenses d’équipement</b><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
-<div class="resource section-row" data-correct="F" data-section-item="recettes"><b>Recettes de fonctionnement</b><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
-<div class="resource section-row" data-correct="I" data-section-item="emprunt"><b>Emprunt destiné au financement de l’investissement</b><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
+<div class="resource section-row" data-correct="F" data-section-item="salaires"><b>Dépenses de personnel</b><p class="muted" style="margin:8px 0 0">Dans quelle section ?</p><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
+<div class="resource section-row" data-correct="I" data-section-item="equipement"><b>Dépenses d’équipement</b><p class="muted" style="margin:8px 0 0">Dans quelle section ?</p><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
+<div class="resource section-row" data-correct="F" data-section-item="recettes"><b>Recettes de fonctionnement</b><p class="muted" style="margin:8px 0 0">Dans quelle section ?</p><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
+<div class="resource section-row" data-correct="I" data-section-item="emprunt"><b>Emprunt destiné au financement de l’investissement</b><p class="muted" style="margin:8px 0 0">Dans quelle section ?</p><div class="cta-row"><button class="btn secondary section-pick" data-pick="F">Fonctionnement</button><button class="btn secondary section-pick" data-pick="I">Investissement</button></div></div>
 </div>
 <div class="feedback" id="section-feedback"></div>
 <div class="cta-row"><span class="counter" id="section-counter">0/4 classés</span><button class="btn primary" disabled="" id="section-next">Continuer</button></div>
@@ -2295,5 +2303,5 @@ return{init:init,aller:aller,terminer:terminer,confid:confid,droitDate:droitDate
    });
    ============================================================================ */
 </script>
-<script src="app.js"></script><!-- Budget V7.6 : contenu initial explicite + recette UX généralisée + navigation macro sur noyau v1.7. --></body>
+<script src="app.js"></script><!-- Budget V7.8 : sélection visible + consigne de classement + états initiaux robustes sur noyau v1.7. --></body>
 </html>

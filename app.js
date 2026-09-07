@@ -12,7 +12,7 @@ const shuffle=(arr)=>{arr=arr.slice();for(let i=arr.length-1;i>0;i--){const j=Ma
 const fresh=()=>({
  current:'g-contrat',lastMain:'g-contrat',completed:{},visited:{'g-contrat':1},badges:[false,false,false,false,false],
  pre:[null,null,null,null,null,null],post:[null,null,null,null,null,null],preIndex:0,postIndex:0,
- repSeen:[],repCurrent:1,actorsSeen:[],cyclePlaced:[],cycleOrder:[],plan:[],
+ repSeen:[],repCurrent:1,actorsSeen:[],cyclePlaced:[],cycleOrder:[],cycleMode:'explore',plan:[],
  docNeedIndex:0,docNeedDone:[false,false,false,false],docNeedOrder:[],
  evolIndex:0,evolDone:[false,false,false,false],evolOrder:[],
  dossierPiece:'rapport',dossierSelected:{},dossierDone:{rapport:false,maquette:false,trajectoire:false,invest:false},dossierTry:{rapport:0,maquette:0,trajectoire:0,invest:0},dossierOrder:{},
@@ -22,21 +22,22 @@ const fresh=()=>({
  finished:false
 });
 let state=fresh();
+let hydratedPage=null;
 
 function compactModule(){
- return {v:4,b:state.badges,rs:state.repSeen,rc:state.repCurrent,as:state.actorsSeen,cp:state.cyclePlaced,co:state.cycleOrder,pl:state.plan,
+ return {v:5,b:state.badges,rs:state.repSeen,rc:state.repCurrent,as:state.actorsSeen,cp:state.cyclePlaced,co:state.cycleOrder,cm:state.cycleMode,pl:state.plan,
   dni:state.docNeedIndex,dnd:state.docNeedDone,dno:state.docNeedOrder,evi:state.evolIndex,evd:state.evolDone,evo:state.evolOrder,dsp:state.dossierPiece,
   dss:state.dossierSelected,dsd:state.dossierDone,dst:state.dossierTry,dso:state.dossierOrder,se:state.sections,ci:state.calcStep,
   cs:state.calcShown,ct:state.constats,rf:state.reflexDone,fl:state.flips,hy:state.hypotheses,sc:state.scenarios,
   sf:state.simFinance,sr:state.simRevenue,sx:state.simControl,vi:state.vigilances,pa:state.priorities,qu:state.questions,
   ex:state.exchangeStep,ep:state.precision,ei:state.instruction,ec:state.exchangeChoices,en:state.exchangeNotes,ed:state.exchangeDone};
 }
-function restoreModule(c){if(!c||![3,4].includes(c.v))return;const seen=(c.rs||state.repSeen).filter(x=>Number(x)>=1&&Number(x)<=4);Object.assign(state,{badges:c.b||state.badges,repSeen:seen,repCurrent:c.rc??state.repCurrent,actorsSeen:c.as||state.actorsSeen,cyclePlaced:c.cp||state.cyclePlaced,cycleOrder:c.co||state.cycleOrder,plan:c.pl||state.plan,docNeedIndex:c.dni??state.docNeedIndex,docNeedDone:c.dnd||state.docNeedDone,docNeedOrder:c.dno||state.docNeedOrder,evolIndex:c.evi??state.evolIndex,evolDone:c.evd||state.evolDone,evolOrder:c.evo||state.evolOrder,dossierPiece:c.dsp||state.dossierPiece,dossierSelected:c.dss||state.dossierSelected,dossierDone:c.dsd||state.dossierDone,dossierTry:c.dst||state.dossierTry,dossierOrder:c.dso||state.dossierOrder,sections:c.se||state.sections,calcStep:c.ci??state.calcStep,calcShown:c.cs||state.calcShown,constats:c.ct||state.constats,reflexDone:c.rf??state.reflexDone,flips:c.fl||state.flips,hypotheses:c.hy||state.hypotheses,scenarios:c.sc||state.scenarios,simFinance:c.sf||state.simFinance,simRevenue:c.sr??state.simRevenue,simControl:c.sx??state.simControl,vigilances:c.vi||state.vigilances,priorities:c.pa||state.priorities,questions:c.qu||state.questions,exchangeStep:c.ex??state.exchangeStep,precision:c.ep??state.precision,instruction:c.ei??state.instruction,exchangeChoices:c.ec||state.exchangeChoices,exchangeNotes:c.en||state.exchangeNotes,exchangeDone:c.ed??state.exchangeDone});}
+function restoreModule(c){if(!c||![3,4,5].includes(c.v))return;const seen=(c.rs||state.repSeen).filter(x=>Number(x)>=1&&Number(x)<=4);Object.assign(state,{badges:c.b||state.badges,repSeen:seen,repCurrent:c.rc??state.repCurrent,actorsSeen:c.as||state.actorsSeen,cyclePlaced:c.cp||state.cyclePlaced,cycleOrder:c.co||state.cycleOrder,cycleMode:c.cm||(c.cp&&c.cp.length?'build':state.cycleMode),plan:c.pl||state.plan,docNeedIndex:c.dni??state.docNeedIndex,docNeedDone:c.dnd||state.docNeedDone,docNeedOrder:c.dno||state.docNeedOrder,evolIndex:c.evi??state.evolIndex,evolDone:c.evd||state.evolDone,evolOrder:c.evo||state.evolOrder,dossierPiece:c.dsp||state.dossierPiece,dossierSelected:c.dss||state.dossierSelected,dossierDone:c.dsd||state.dossierDone,dossierTry:c.dst||state.dossierTry,dossierOrder:c.dso||state.dossierOrder,sections:c.se||state.sections,calcStep:c.ci??state.calcStep,calcShown:c.cs||state.calcShown,constats:c.ct||state.constats,reflexDone:c.rf??state.reflexDone,flips:c.fl||state.flips,hypotheses:c.hy||state.hypotheses,scenarios:c.sc||state.scenarios,simFinance:c.sf||state.simFinance,simRevenue:c.sr??state.simRevenue,simControl:c.sx??state.simControl,vigilances:c.vi||state.vigilances,priorities:c.pa||state.priorities,questions:c.qu||state.questions,exchangeStep:c.ex??state.exchangeStep,precision:c.ep??state.precision,instruction:c.ei??state.instruction,exchangeChoices:c.ec||state.exchangeChoices,exchangeNotes:c.en||state.exchangeNotes,exchangeDone:c.ed??state.exchangeDone});}
 function save(){GABARIT.donnee('budget',compactModule());updateBadges();}
 function complete(id){GABARIT.terminer(id);updateBadges();if(typeof updateMacroMenuState==='function')updateMacroMenuState();}
 function isComplete(id){return !!((GABARIT.etat.terminees||{})[id]);}
 function seqIndex(id){return SEQ.indexOf(id)}
-function go(id,opts={}){if(!$(id))return;state.current=id;if(SEQ.includes(id))state.lastMain=id;GABARIT.aller(id);hydrateScreen(id);save();if(typeof updateMacroMenuState==='function')updateMacroMenuState();}
+function go(id,opts={}){if(!$(id))return;state.current=id;if(SEQ.includes(id))state.lastMain=id;GABARIT.aller(id);hydrateScreen(id);hydratedPage=id;save();if(typeof updateMacroMenuState==='function')updateMacroMenuState();}
 function nextOf(id){const i=seqIndex(id);return i>=0&&i<SEQ.length-1?SEQ[i+1]:null}
 function prevOf(id){const i=seqIndex(id);return i>0?SEQ[i-1]:null}
 function goNext(id=state.current){const n=nextOf(id);if(n)go(n)}
@@ -96,9 +97,29 @@ function chooseActor(key){state.actorsSeen=Array.from(new Set([...(state.actorsS
 
 /* cycle */
 const CYCLE=['Orientations','Préparation','Examen','Vote','Exécution','Comptes'];
-function renderCycleBank(){const bank=$('cycle-bank');if(!bank)return;const remaining=(state.cycleOrder||shuffle(CYCLE)).filter(x=>!state.cyclePlaced.includes(x));if(!state.cycleOrder)state.cycleOrder=remaining.concat(state.cyclePlaced);bank.innerHTML='';remaining.forEach(label=>{const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>placeCycle(label,b);bank.appendChild(b)});text($('cycle-build-counter'),`${state.cyclePlaced.length}/6 étapes placées`);$('cycle-next').disabled=state.cyclePlaced.length<6}
+function ensureCycleOrder(){
+ const valid=Array.isArray(state.cycleOrder)&&state.cycleOrder.length===CYCLE.length&&new Set(state.cycleOrder).size===CYCLE.length&&state.cycleOrder.every(x=>CYCLE.includes(x));
+ if(!valid)state.cycleOrder=shuffle(CYCLE);
+}
+function renderCyclePlaced(){
+ const box=$('cycle-placed');if(!box)return;
+ if(!state.cyclePlaced.length){box.innerHTML='<p class="muted" style="margin:0 0 8px"><strong>Votre cycle :</strong> aucune étape placée pour le moment.</p>';return}
+ box.innerHTML='<p class="muted" style="margin:0 0 8px"><strong>Votre cycle :</strong></p><div class="tags">'+state.cyclePlaced.map((x,i)=>'<span class="note-tag">'+(i+1)+' · '+esc(x)+'</span>').join('')+'</div>';
+}
+function renderCycleBank(){
+ const bank=$('cycle-bank');if(!bank)return;ensureCycleOrder();
+ const remaining=state.cycleOrder.filter(x=>!state.cyclePlaced.includes(x));bank.innerHTML='';
+ remaining.forEach(label=>{const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>placeCycle(label);bank.appendChild(b)});
+ renderCyclePlaced();text($('cycle-build-counter'),`${state.cyclePlaced.length}/6 étapes placées`);$('cycle-next').disabled=state.cyclePlaced.length<6;
+ if(!remaining.length&&state.cyclePlaced.length<6){console.error('[BUDGET] Etat cycle incohérent : banque vide avant 6/6. Réinitialisation sûre.');state.cycleOrder=shuffle(CYCLE);renderCycleBank();}
+}
+function renderCycleScreen(){
+ const explore=$('cycle-explore'),build=$('cycle-build');if(!explore||!build)return;
+ const mode=state.cycleMode==='build'?'build':'explore';explore.classList.toggle('hidden',mode==='build');build.classList.toggle('active',mode==='build');
+ if(mode==='build')renderCycleBank();
+}
 function placeCycle(label){const expected=CYCLE[state.cyclePlaced.length];if(label!==expected){feedback('cycle-feedback','bad',`<strong>Pas encore.</strong> Cherchez l’étape qui vient ${state.cyclePlaced.length?'après « '+esc(state.cyclePlaced[state.cyclePlaced.length-1])+' »':'en premier dans le cycle'}.`);return}state.cyclePlaced.push(label);feedback('cycle-feedback','ok',`<strong>${esc(label)}</strong> est bien placé${state.cyclePlaced.length<6?'. Poursuivez la séquence.':' : vous avez reconstitué le cycle.'}`);if(state.cyclePlaced.length===6)complete('bud-m1-cycle');renderCycleBank();save()}
-function resetCycle(){state.cyclePlaced=[];state.cycleOrder=shuffle(CYCLE);clearFeedback('cycle-feedback');renderCycleBank();save()}
+function resetCycle(){state.cycleMode='build';state.cyclePlaced=[];state.cycleOrder=shuffle(CYCLE);clearFeedback('cycle-feedback');renderCycleScreen();save()}
 
 /* selection helper */
 function toggleLimited(btn,limit){const parent=btn.parentElement;const selected=qa('.choice.selected',parent);if(btn.classList.contains('selected'))btn.classList.remove('selected');else if(selected.length<limit)btn.classList.add('selected');return qa('.choice.selected',parent)}
@@ -127,7 +148,7 @@ function checkDossier(){const key=state.dossierPiece||'rapport';if(state.dossier
 function updateDossierProgress(){const n=Object.values(state.dossierDone).filter(Boolean).length;text($('dossier-progress'),`${n}/4 pièces correctement analysées`)}
 
 /* M3 */
-function initSections(){qa('.section-row').forEach(row=>{const id=row.dataset.sectionItem,chosen=state.sections[id];qa('.section-pick',row).forEach(b=>{b.classList.toggle('selected',chosen===b.dataset.pick);b.classList.toggle('correct',chosen===b.dataset.pick&&chosen===row.dataset.correct);b.onclick=()=>{state.sections[id]=b.dataset.pick;qa('.section-pick',row).forEach(x=>x.classList.remove('selected','correct','wrong'));b.classList.add(b.dataset.pick===row.dataset.correct?'correct':'wrong');if(b.dataset.pick===row.dataset.correct)feedback('section-feedback','ok','<strong>Oui.</strong> Continuez à relier chaque élément à sa section.') ; else feedback('section-feedback','bad','<strong>À revoir.</strong> Demandez-vous si l’élément relève du fonctionnement courant ou du financement/équipement d’investissement.');updateSections();save()}})});updateSections()}
+function initSections(){qa('.section-row').forEach(row=>{const id=row.dataset.sectionItem,chosen=state.sections[id];const sync=()=>{const current=state.sections[id];row.toggleAttribute('data-chosen',!!current);qa('.section-pick',row).forEach(b=>{const on=current===b.dataset.pick,ok=on&&current===row.dataset.correct;b.classList.toggle('selected',on);b.classList.toggle('correct',ok);b.classList.toggle('wrong',on&&!ok);b.setAttribute('aria-pressed',on?'true':'false')})};qa('.section-pick',row).forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{state.sections[id]=b.dataset.pick;sync();if(b.dataset.pick===row.dataset.correct)feedback('section-feedback','ok','<strong>Oui.</strong> Votre choix « '+b.textContent+' » est correct. Poursuivez avec l’élément suivant.');else feedback('section-feedback','bad','<strong>À revoir.</strong> Vous avez choisi « '+b.textContent+' ». Demandez-vous si l’élément relève du fonctionnement courant ou du financement/équipement d’investissement. Vous pouvez changer de choix directement.');updateSections();save()}});sync()});updateSections()}
 function updateSections(){const rows=qa('.section-row'),n=rows.filter(r=>state.sections[r.dataset.sectionItem]===r.dataset.correct).length;text($('section-counter'),`${n}/4 classés correctement`);$('section-next').disabled=n<4;if(n===4)complete('bud-m3-sections')}
 const CALC=[
  {title:'Épargne de gestion',formula:'182 − 157 = 25',explain:'Elle mesure la marge dégagée avant la charge des intérêts.',result:['res-gestion','25'],data:['rf','dho']},
@@ -137,7 +158,7 @@ const CALC=[
 function renderCalc(){const i=state.calcStep||0,c=CALC[i];text($('calc-counter'),`Étape ${i+1} sur 3`);text($('calc-title'),c.title);text($('calc-formula'),state.calcShown[i]?c.formula:c.formula.replace(/= .+$/,'= ?'));text($('calc-explain'),c.explain);qa('.datum').forEach(d=>d.classList.toggle('active',state.calcShown[i]&&c.data.includes(d.dataset.datum)));CALC.forEach((x,j)=>text($(x.result[0]),state.calcShown[j]?x.result[1]:'—'));$('calc-next').disabled=!state.calcShown[i];$('calc-next').textContent=i===2?'Continuer':'Étape suivante';$('calc-do').textContent=state.calcShown[i]?'Calcul affiché':'Afficher le calcul pas à pas'}
 function calcDo(){state.calcShown[state.calcStep]=true;renderCalc();if(state.calcShown.every(Boolean))complete('bud-m3-calcul');save()}
 function calcNext(){if(!state.calcShown[state.calcStep])return;if(state.calcStep<2){state.calcStep++;renderCalc();save()}else go('bud-m3-interpreter')}
-function initSingleChoice(container,feedbackId,nextId,okMsg,badMsg,completeId,nextTarget){qa(`#${container} .choice`).forEach(b=>b.onclick=()=>{qa(`#${container} .choice`).forEach(x=>x.classList.remove('correct','wrong','selected'));if(b.dataset.ok==='1'){b.classList.add('correct');feedback(feedbackId,'ok',okMsg);$(nextId).disabled=false;complete(completeId)}else{b.classList.add('wrong');feedback(feedbackId,'bad',badMsg);$(nextId).disabled=true}save()});if($(nextId))$(nextId).onclick=()=>go(nextTarget)}
+function initSingleChoice(container,feedbackId,nextId,okMsg,badMsg,completeId,nextTarget){qa(`#${container} .choice`).forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{qa(`#${container} .choice`).forEach(x=>{x.classList.remove('correct','wrong','selected');x.setAttribute('aria-pressed','false')});b.classList.add('selected');b.setAttribute('aria-pressed','true');if(b.dataset.ok==='1'){b.classList.add('correct');feedback(feedbackId,'ok',okMsg);$(nextId).disabled=false;complete(completeId)}else{b.classList.add('wrong');feedback(feedbackId,'bad',badMsg);$(nextId).disabled=true}save()}});if($(nextId))$(nextId).onclick=()=>go(nextTarget)}
 function initConstats(){qa('#constat-choices .choice').forEach(b=>{b.classList.toggle('selected',state.constats.includes(+b.dataset.constat));b.onclick=()=>{clearTransientWrong($('constat-choices'));toggleLimited(b,3);state.constats=qa('#constat-choices .choice.selected').map(x=>+x.dataset.constat);text($('constat-counter'),`${state.constats.length}/3 constats sélectionnés`);$('constat-save').disabled=state.constats.length!==3;clearFeedback('constat-feedback');save()}});text($('constat-counter'),`${state.constats.length}/3 constats sélectionnés`);$('constat-save').disabled=state.constats.length!==3}
 function saveConstats(){if(isComplete('bud-m3-constats')){go('bud-m3-reflexe');return}const bad=state.constats.some(i=>$('constat-choices').querySelector(`[data-constat="${i}"]`).dataset.ok!=='1');if(bad){releaseWrongSelections('constat-choices','constat','constats',3,'constat-counter','constat-save','constats sélectionnés');feedback('constat-feedback','bad','<strong>Un constat allait trop loin.</strong> Il a été retiré de votre sélection. Gardez les constats factuels déjà retenus et choisissez-en un autre.');return}feedback('constat-feedback','ok','<strong>Constats conservés.</strong> Ils décrivent les faits avant toute conclusion. Ils rejoignent votre carnet.');complete('bud-m3-constats');$('constat-save').textContent='Continuer';renderCarnet();save()}
 
@@ -207,6 +228,7 @@ function hydrateScreen(id){
  renderCarnet();updateBadges();
  if(id==='g-fin'){const pre=gabArray(GABARIT.etat.pre),post=gabArray(GABARIT.etat.post);drawRadar($('final-radar'),pre,post);renderRadarText('final-radar-text',pre,post);}
  if(id==='bud-m1-reperes')renderRepere(state.repCurrent||1);
+ if(id==='bud-m1-cycle')renderCycleScreen();
  if(id==='bud-m2-documents')renderNeed();
  if(id==='bud-m2-evolution')renderEvol();
  if(id==='bud-dossier')renderDossier();
@@ -214,6 +236,16 @@ function hydrateScreen(id){
  if(id==='bud-carnet')renderCarnet();
  if(id==='bud-m4-simulateur')renderSim();
  if(id==='bud-m5-note')renderCarnet();
+ // Garde-fou UX : aucun écran dynamique actif ne doit rester vide à l'arrivée.
+ const guards={
+  'bud-m1-reperes':['repere-stage',()=>renderRepere(state.repCurrent||1)],
+  'bud-m1-cycle':['cycle-bank',()=>{if(state.cycleMode==='build')renderCycleBank()}],
+  'bud-m2-documents':['doc-options',renderNeed],
+  'bud-m2-evolution':['evol-options',renderEvol],
+  'bud-dossier':['signal-choices',renderDossier],
+  'bud-m5-commission':['exchange-options',initExchange]
+ };
+ const g=guards[id];if(g){const zone=$(g[0]);if(zone&&!zone.children.length&&!(id==='bud-m1-cycle'&&state.cycleMode!=='build')){console.warn('[BUDGET] Auto-réparation d’un état initial vide : '+id);g[1]();}}
 }
 
 /* persistent tools / modal */
@@ -229,7 +261,7 @@ function wire(){
  document.addEventListener('click',e=>{const b=e.target.closest('[data-bud-tool]');if(!b)return;e.preventDefault();openTool(b.dataset.budTool)});
  qa('.repere-select').forEach(b=>b.onclick=()=>renderRepere(b.dataset.repere));if($('repere-next'))$('repere-next').onclick=()=>go('bud-m1-acteurs');
  qa('.actor').forEach(b=>b.onclick=()=>chooseActor(b.dataset.actor));if($('actor-next'))$('actor-next').onclick=()=>go('bud-m1-regle');
- if($('cycle-start'))$('cycle-start').onclick=()=>{$('cycle-explore').classList.add('hidden');$('cycle-build').classList.add('active');renderCycleBank()};if($('cycle-reset'))$('cycle-reset').onclick=resetCycle;if($('cycle-next'))$('cycle-next').onclick=()=>go('bud-m1-plan');
+ if($('cycle-start'))$('cycle-start').onclick=()=>{state.cycleMode='build';renderCycleScreen();save()};if($('cycle-reset'))$('cycle-reset').onclick=resetCycle;if($('cycle-next'))$('cycle-next').onclick=()=>go('bud-m1-plan');
  if($('plan-save'))$('plan-save').onclick=savePlan;
  qa('.mission-close').forEach(b=>b.onclick=()=>{const m=+b.dataset.mission;state.badges[m-1]=true;complete(GABARIT.etat.page||state.current);save();go(m<5?`m${m+1}-intro`:'g-post')});
  if($('doc-prev'))$('doc-prev').onclick=()=>{if(state.docNeedIndex>0){state.docNeedIndex--;renderNeed();save()}};if($('doc-nextneed'))$('doc-nextneed').onclick=()=>{if(state.docNeedIndex<3){state.docNeedIndex++;renderNeed();save()}};if($('doc-screen-next'))$('doc-screen-next').onclick=()=>go('bud-m2-logiques');
@@ -314,7 +346,7 @@ function patchNucleusMenu(){
    a.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&canAccessNav(item.id)){e.preventDefault();go(item.id)}});
  });
  updateMacroMenuState();
- const app=$('g-app');if(app){macroMenuObserver=new MutationObserver(()=>updateMacroMenuState());macroMenuObserver.observe(app,{subtree:true,attributes:true,attributeFilter:['class']})}
+ const app=$('g-app');if(app){macroMenuObserver=new MutationObserver(()=>{updateMacroMenuState();const active=(document.querySelector('.panel.actif')||{}).id;if(active&&active!==hydratedPage){state.current=active;if(SEQ.includes(active))state.lastMain=active;hydrateScreen(active);hydratedPage=active;}});macroMenuObserver.observe(app,{subtree:true,attributes:true,attributeFilter:['class']})}
 }
 function patchBottomNavigation(){
  const next=$('g-btn-suiv'),prev=$('g-btn-prec');if(!next||!prev)return;
@@ -334,7 +366,7 @@ function init(){
  state.current=GABARIT.etat.page||'g-contrat';state.lastMain=SEQ.includes(state.current)?state.current:'g-contrat';
  ensureOrders();wire();renderCarnet();renderScenarios();initPlan();initSections();initConstats();initVigilances();initPriorities();initQuestionBuilder();initFlips();initHypotheses();renderCalc();initSimControl();initExchange();
  setupSequentialPosition('pre');setupSequentialPosition('post');patchNucleusMenu();patchBottomNavigation();
- hydrateScreen(state.current);if(state.current==='bud-m1-reperes'&&!$('repere-stage').innerHTML.trim())renderRepere(state.repCurrent||1);updateMacroMenuState();
+ hydrateScreen(state.current);hydratedPage=state.current;if(state.current==='bud-m1-reperes'&&!$('repere-stage').innerHTML.trim())renderRepere(state.repCurrent||1);updateMacroMenuState();
  const budget=GABARIT.verifierBudgetStockage();if(!budget.ok)console.error('[BUDGET] suspend_data dépasse la limite projet',budget);
 }
 
