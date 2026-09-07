@@ -334,7 +334,7 @@ function init(){
  state.current=GABARIT.etat.page||'g-contrat';state.lastMain=SEQ.includes(state.current)?state.current:'g-contrat';
  ensureOrders();wire();renderCarnet();renderScenarios();initPlan();initSections();initConstats();initVigilances();initPriorities();initQuestionBuilder();initFlips();initHypotheses();renderCalc();initSimControl();initExchange();
  setupSequentialPosition('pre');setupSequentialPosition('post');patchNucleusMenu();patchBottomNavigation();
- hydrateScreen(state.current);updateMacroMenuState();
+ hydrateScreen(state.current);if(state.current==='bud-m1-reperes'&&!$('repere-stage').innerHTML.trim())renderRepere(state.repCurrent||1);updateMacroMenuState();
  const budget=GABARIT.verifierBudgetStockage();if(!budget.ok)console.error('[BUDGET] suspend_data dépasse la limite projet',budget);
 }
 
