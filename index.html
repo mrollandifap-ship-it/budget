@@ -658,7 +658,34 @@ body{overflow-x:hidden}
 /* gabarit + images */
 .hero-media{min-height:260px}.hero-media img{min-height:260px}
 @media(max-width:760px){.screen-head,.screen-body{padding-left:20px;padding-right:20px}.mission-hero,.intro-layout{grid-template-columns:1fr}.repere-map{grid-template-columns:1fr}.dossier-grid,.cycle-zone,.radar-wrap{grid-template-columns:1fr}.cycle{transform:none;margin-bottom:0}}
-</style></head>
+</style>
+<style id="budget-v75-recette-ux">
+/* Budget V7.5 — règles issues de la recette utilisateur du 07/09/2026.
+   Ces surcharges sont propres au module ; le noyau v1.7 n'est pas modifié. */
+.g-carnet-intro{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start;margin:16px 0 0;padding:16px 18px;border:1px solid var(--ligne);border-radius:var(--rayon);background:var(--blanc);box-shadow:var(--ombre)}
+.g-carnet-intro-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--bleu-nuit);color:var(--or);font-size:22px;font-weight:900}
+.g-carnet-intro h3{margin:0 0 5px;font-size:18px}.g-carnet-intro p{margin:0;color:var(--texte-2)}
+#repere-tabs .repere-select{display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:flex-start;min-height:194px}
+#repere-tabs .repere-select .icon{margin:0 auto 12px;background:var(--bleu-nuit);color:#fff;flex:0 0 44px}
+#repere-tabs .repere-select.selected{border-color:var(--or);box-shadow:inset 0 0 0 2px var(--or);background:var(--ivoire)}
+#repere-tabs .repere-select.selected .icon{background:var(--or);color:var(--bleu-nuit)}
+#repere-tabs .repere-select h4{min-height:2.7em;margin-top:0}
+.doc-shell{display:block}
+.doc-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 16px;align-items:stretch}
+.doc-tab{min-height:92px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.doc-tab.active{border-color:var(--or);background:var(--ivoire);box-shadow:inset 0 0 0 2px var(--or)}
+.doc-tab.done:not(.active){border-color:var(--succes);background:var(--succes-fond)}
+.doc-view{padding:0;overflow:hidden}
+.doc-zone{padding:20px}.doc-consult{background:#fff}.doc-analyse{background:var(--page)}
+.doc-step-label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bleu-nuit);margin-bottom:12px}
+.doc-step-label span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--bleu-nuit);color:#fff}
+.doc-divider{display:flex;align-items:center;gap:12px;padding:0 20px;color:var(--bleu-nuit);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.doc-divider:before,.doc-divider:after{content:"";height:1px;background:var(--ligne);flex:1}.doc-divider span{padding:10px 0}
+.choice.wrong:not(.selected){border-color:var(--erreur);background:var(--erreur-fond);box-shadow:none}
+@media(max-width:900px){.doc-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.doc-tabs{grid-template-columns:1fr}.g-carnet-intro{grid-template-columns:1fr}.g-carnet-intro-icon{width:40px;height:40px}}
+</style>
+</head>
 <body>
 <header class="g-chrome" role="banner">
 <div class="g-chrome-inner">
@@ -709,6 +736,11 @@ body{overflow-x:hidden}
 <div aria-label="Durée prévisionnelle" class="g-duree" role="note">
 <span aria-hidden="true" class="icone">◷</span>
 <p><strong>Durée prévisionnelle : environ 75 minutes.</strong><br/>Parcours complet, activités et approfondissements inclus.</p>
+</div>
+<div class="g-carnet-intro" role="note" aria-label="Votre carnet de mission">
+  <div class="g-carnet-intro-icon" aria-hidden="true">▣</div>
+  <div><h3>Votre carnet de mission vous accompagne dès le départ</h3>
+  <p>Au fil des cinq missions, vous y conserverez vos choix utiles : plan de préparation, signaux, constats, vigilances, priorités et questions. Il devient progressivement votre support de préparation pour la commission.</p></div>
 </div>
 </div>
 <figure class="g-accueil-video"><img alt="Un dossier budgétaire fermé, un carnet et un stylo sur un bureau, avec une échéance suggérée en arrière-plan." src="media/BUD-IMG-HERO-DOSSIER-J12.jpg"/><figcaption class="g-video-legende">Votre fil rouge · un dossier à analyser avant la première réunion d’examen.</figcaption></figure>
@@ -770,12 +802,11 @@ body{overflow-x:hidden}
 <div>
 <span class="mission-pill"><span class="dot"></span> Mission 1 sur 5</span>
 <h3>Pourquoi cette étape compte</h3><p>Avant de parcourir les chiffres, vous avez besoin d’une carte mentale solide : qui intervient, quand, avec quels documents et selon quelles règles.</p>
-<div class="guidance"><div aria-hidden="true">→</div><div><strong>Votre production pour le carnet.</strong> Un plan de préparation en 3 premières actions.</div></div>
+<div class="guidance"><div aria-hidden="true">→</div><div><strong>Votre carnet commence ici.</strong> À chaque mission, vous y conserverez ce qui mérite d’être réutilisé. Pour cette première étape : un plan de préparation en 3 actions.</div></div>
 <div class="cta-row"><button class="btn primary" data-complete-go="bud-m1-reperes">Commencer la mission</button></div>
 </div>
 <div class="hero-media">
 <img alt="Un dossier à onglets, une boussole et un carnet disposés sur un bureau pour symboliser les repères à construire." src="media/BUD-IMG-M1-REPERES.jpg"/>
-<div class="media-badge"><strong>M1</strong></div>
 </div>
 </div>
 </div>
@@ -791,7 +822,7 @@ body{overflow-x:hidden}
 <div class="guidance"><div aria-hidden="true">1→4</div><div><strong>Consultez les quatre repères.</strong> Le bouton « Continuer » se débloque lorsque les quatre ont été ouverts.</div></div>
 <div class="grid4" id="repere-tabs">
 <button class="card repere-select selected" data-repere="1"><div class="icon">1</div><h4>Les grands principes</h4><p class="muted">Le cadre de lecture</p></button>
-<button class="card repere-select" data-repere="2"><div class="icon gold">2</div><h4>Deux sections liées</h4><p class="muted">Fonctionnement ↔ investissement</p></button>
+<button class="card repere-select" data-repere="2"><div class="icon">2</div><h4>Deux sections liées</h4><p class="muted">Fonctionnement ↔ investissement</p></button>
 <button class="card repere-select" data-repere="3"><div class="icon">3</div><h4>Le cycle budgétaire</h4><p class="muted">Quand intervient l’élu ?</p></button>
 <button class="card repere-select" data-repere="4"><div class="icon">4</div><h4>4 indicateurs</h4><p class="muted">Des repères, jamais un verdict</p></button>
 </div>
@@ -922,7 +953,6 @@ body{overflow-x:hidden}
 </div>
 <div class="hero-media">
 <img alt="Un dossier budgétaire ouvert, organisé en pièces distinctes, avec une loupe pour symboliser l’exploration du dossier." src="media/BUD-IMG-M2-DOSSIER.jpg"/>
-<div class="media-badge"><strong>M2</strong></div>
 </div>
 </div>
 </div>
@@ -935,7 +965,7 @@ body{overflow-x:hidden}
 <p class="lede">Quatre besoins, deux documents proposés à chaque fois. Le besoin est le point de départ : choisissez le document qui vous aidera réellement à y répondre.</p>
 </div>
 <div class="screen-body">
-<div class="guidance"><div aria-hidden="true">?</div><div><strong>Pour chacun des 4 besoins, choisissez un document.</strong> Vous pouvez revenir sur un besoin déjà traité ; le feedback est propre à chaque besoin.</div></div>
+<div class="guidance"><div aria-hidden="true">?</div><div><strong>Pour chacun des 4 besoins, choisissez un document.</strong><br/><span>Traitez le besoin affiché avant de passer au suivant. Vous pourrez revenir sur un besoin déjà traité ; son feedback reste indépendant.</span></div></div>
 <div class="card info">
 <div class="counter" id="doc-need-counter">Besoin 1 sur 4</div>
 <h3 id="doc-need-title"></h3>
@@ -1005,12 +1035,17 @@ body{overflow-x:hidden}
 <button class="doc-tab" data-piece="invest"><b>Fiche investissement</b><br/><small>Projet pluriannuel</small></button>
 </div>
 <div class="doc-view">
-<div id="piece-content"></div>
-<hr style="border:0;border-top:1px solid var(--ligne);margin:20px 0"/>
-<div class="guidance"><div>📌</div><div><strong>Quels 3 signaux épinglez-vous ?</strong> Sélectionnez trois éléments avant de vérifier votre analyse.</div></div>
-<div class="choice-grid" id="signal-choices"></div>
-<div class="feedback" id="signal-feedback"></div>
-<div class="cta-row"><span class="counter" id="signal-counter">0/3 sélectionnés</span><button class="btn primary" disabled="" id="signal-check">Vérifier mon analyse</button></div>
+<div class="doc-zone doc-consult">
+  <div class="doc-step-label"><span>1</span> Consultez la pièce</div>
+  <div id="piece-content"></div>
+</div>
+<div class="doc-divider"><span>2 · Analysez les signaux</span></div>
+<div class="doc-zone doc-analyse">
+  <div class="guidance"><div aria-hidden="true">📌</div><div><strong>Quels 3 signaux épinglez-vous ?</strong> Sélectionnez trois éléments avant de vérifier votre analyse.</div></div>
+  <div class="choice-grid" id="signal-choices"></div>
+  <div class="feedback" id="signal-feedback"></div>
+  <div class="cta-row"><span class="counter" id="signal-counter">0/3 sélectionnés</span><button class="btn primary" disabled="" id="signal-check">Vérifier mon analyse</button></div>
+</div>
 </div>
 </div>
 <div class="carnet-mini"><b>Carnet de mission · progression</b><div id="dossier-progress" style="margin-top:8px">0/4 pièces correctement analysées</div></div>
@@ -1048,7 +1083,6 @@ body{overflow-x:hidden}
 </div>
 <div class="hero-media">
 <img alt="Des graphiques financiers et un carnet côte à côte pour symboliser la mise en relation des équilibres budgétaires." src="media/BUD-IMG-M3-EQUILIBRES.jpg"/>
-<div class="media-badge"><strong>M3</strong></div>
 </div>
 </div>
 </div>
@@ -1204,7 +1238,6 @@ body{overflow-x:hidden}
 </div>
 <div class="hero-media">
 <img alt="Des graphiques observés à la loupe, avec un carnet, pour symboliser la lecture et l’interprétation des indicateurs." src="media/BUD-IMG-M4-INDICATEURS.jpg"/>
-<div class="media-badge"><strong>M4</strong></div>
 </div>
 </div>
 </div>
@@ -1399,7 +1432,6 @@ body{overflow-x:hidden}
 </div>
 <div class="hero-media">
 <img alt="Une table de commission avec microphones, dossier et carnet préparés, sans personne, pour symboliser la préparation des questions." src="media/BUD-IMG-M5-COMMISSION.jpg"/>
-<div class="media-badge"><strong>M5</strong></div>
 </div>
 </div>
 </div>
@@ -2263,5 +2295,5 @@ return{init:init,aller:aller,terminer:terminer,confid:confid,droitDate:droitDate
    });
    ============================================================================ */
 </script>
-<script src="app.js"></script><!-- Budget V7.4 : navigation macro + contenu module sur noyau v1.7 sans écriture SCORM directe ni localStorage. --></body>
+<script src="app.js"></script><!-- Budget V7.5 : recette UX généralisée + navigation macro sur noyau v1.7. --></body>
 </html>
